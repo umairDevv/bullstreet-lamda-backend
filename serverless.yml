@@ -1,0 +1,77 @@
+service: bull-street-rental
+frameworkVersion: '3'
+plugins:
+  - serverless-offline
+  - serverless-dotenv-plugin
+custom:
+  serverless-offline:
+    httpPort: 3001
+  dotenv:
+    path: ./.env
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stage: ${opt:stage, 'prod'}
+  region: ${opt:region, 'us-east-1'}
+  environment:
+    STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
+    STRIPE_WEBHOOK_SECRET: ${env:STRIPE_WEBHOOK_SECRET}
+    FRONTEND_URL: ${env:FRONTEND_URL, 'https://watchbullstreet.com'}
+    VIDEO_URL: ${env:VIDEO_URL, 'https://your-cloudfront-url.com/BullStreet.mp4'}
+    RENTAL_PERIOD_HOURS: 48
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: !GetAtt MovieRentalsTable.Arn
+functions:
+  createCheckoutSession:
+    handler: functions/createCheckoutSession.handler
+    events:
+      - http:
+          path: /checkout
+          method: post
+          cors: true
+  stripeWebhookHandler:
+    handler: functions/stripeWebhookHandler.handler
+    events:
+      - http:
+          path: /webhook
+          method: post
+          cors: true
+  verifyEmail:
+    handler: functions/verifyEmail.handler
+    events:
+      - http:
+          path: /verify-email
+          method: post
+          cors: true
+  checkRentalStatus:
+    handler: functions/checkRentalStatus.handler
+    events:
+      - http:
+          path: /check-rental
+          method: get
+          cors: true
+resources:
+  Resources:
+    MovieRentalsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: movie-rentals-${self:provider.stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+          - AttributeName: movieId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+          - AttributeName: movieId
+            KeyType: RANGE (edited)

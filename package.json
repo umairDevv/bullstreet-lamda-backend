@@ -1,0 +1,21 @@
+{
+  "name": "bullstreet-lamda-backend",
+  "version": "1.0.0",
+  "description": "this is repository for bull street lamda backend updated.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1692.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "serverless": "^4.12.0",
+    "stripe": "^18.0.0",
+    "uuid": "^11.1.0"
+  }
+}
