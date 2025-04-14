@@ -1,5 +1,10 @@
 // const { getRental, isRentalValid } = require('../utils/dynamodb');
 // const { success, error } = require('../utils/response');
+
+//zip not needed as not modules are here.
+// " /verify-email"
+
+
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 module.exports.handler = async (event) => {

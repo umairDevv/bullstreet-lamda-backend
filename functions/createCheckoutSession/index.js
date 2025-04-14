@@ -1,3 +1,7 @@
+
+//  /checkout
+
+
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 // const { success, error } = require('../utils/response');
 module.exports.handler = async (event) => {

@@ -1,5 +1,11 @@
 // const { getRental, isRentalValid } = require('../utils/dynamodb');
 // const { success, error } = require('../utils/response');
+
+
+
+//zip not needed as not modules are here.
+// " /check-rental"
+
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 

@@ -3,6 +3,10 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 // const { createRental } = require('../utils/dynamodb');
 // const { success, error } = require('../utils/response');
+
+//  /webhook
+
+
 module.exports.handler = async (event) => {
   const TABLE_NAME = 'movie-rentals';
 
