@@ -1,0 +1,200 @@
+{
+  "C:\\Users\\dell\\Desktop\\PersonalProjects\\bullstreet-lamda-backend\\serverless.yml": {
+    "versionFramework": "4.12.0",
+    "servicePath": "C:\\Users\\dell\\Desktop\\PersonalProjects\\bullstreet-lamda-backend\\serverless.yml",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "service": "bull-street-rental",
+      "frameworkVersion": "3",
+      "plugins": [
+        "serverless-offline",
+        "serverless-dotenv-plugin"
+      ],
+      "custom": {
+        "serverless-offline": {
+          "httpPort": 3001
+        },
+        "dotenv": {
+          "path": "./.env"
+        }
+      },
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs16.x",
+        "stage": "prod",
+        "region": "us-east-1",
+        "environment": {
+          "STRIPE_SECRET_KEY": "<REDACTED>",
+          "STRIPE_WEBHOOK_SECRET": "<REDACTED>",
+          "FRONTEND_URL": "https://watchbullstreet.com",
+          "VIDEO_URL": "https://your-cloudfront-url.com/BullStreet.mp4",
+          "RENTAL_PERIOD_HOURS": 48
+        },
+        "iamRoleStatements": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "dynamodb:Query",
+              "dynamodb:Scan",
+              "dynamodb:GetItem",
+              "dynamodb:PutItem",
+              "dynamodb:UpdateItem",
+              "dynamodb:DeleteItem"
+            ],
+            "Resource": {
+              "Fn::GetAtt": [
+                "MovieRentalsTable",
+                "Arn"
+              ]
+            }
+          }
+        ]
+      },
+      "functions": {
+        "createCheckoutSession": {
+          "handler": "functions/createCheckoutSession.handler",
+          "events": [
+            {
+              "http": {
+                "path": "/checkout",
+                "method": "post",
+                "cors": true
+              }
+            }
+          ]
+        },
+        "stripeWebhookHandler": {
+          "handler": "functions/stripeWebhookHandler.handler",
+          "events": [
+            {
+              "http": {
+                "path": "/webhook",
+                "method": "post",
+                "cors": true
+              }
+            }
+          ]
+        },
+        "verifyEmail": {
+          "handler": "functions/verifyEmail.handler",
+          "events": [
+            {
+              "http": {
+                "path": "/verify-email",
+                "method": "post",
+                "cors": true
+              }
+            }
+          ]
+        },
+        "checkRentalStatus": {
+          "handler": "functions/checkRentalStatus.handler",
+          "events": [
+            {
+              "http": {
+                "path": "/check-rental",
+                "method": "get",
+                "cors": true
+              }
+            }
+          ]
+        }
+      },
+      "resources": {
+        "Resources": {
+          "MovieRentalsTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "movie-rentals-prod",
+              "BillingMode": "PAY_PER_REQUEST",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "email",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "movieId",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "email",
+                  "KeyType": "HASH"
+                },
+                {
+                  "AttributeName": "movieId",
+                  "KeyType": "RANGE (edited)"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "nodejs16.x",
+      "stage": "prod",
+      "region": "us-east-1",
+      "environment": {
+        "STRIPE_SECRET_KEY": "<REDACTED>",
+        "STRIPE_WEBHOOK_SECRET": "<REDACTED>",
+        "FRONTEND_URL": "https://watchbullstreet.com",
+        "VIDEO_URL": "https://your-cloudfront-url.com/BullStreet.mp4",
+        "RENTAL_PERIOD_HOURS": 48
+      },
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:Query",
+            "dynamodb:Scan",
+            "dynamodb:GetItem",
+            "dynamodb:PutItem",
+            "dynamodb:UpdateItem",
+            "dynamodb:DeleteItem"
+          ],
+          "Resource": {
+            "Fn::GetAtt": [
+              "MovieRentalsTable",
+              "Arn"
+            ]
+          }
+        }
+      ]
+    },
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": true,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "error": {
+      "message": "The Serverless version (4.12.0) does not satisfy the \"frameworkVersion\" (3) in serverless",
+      "stack": "ServerlessError2: The Serverless version (4.12.0) does not satisfy the \"frameworkVersion\" (3) in serverless\n    at Service.loadServiceFileParam (file:///C:/Users/dell/.serverless/releases/4.12.0/package/dist/sf-core.js:1024:9193)\n    at Service.load (file:///C:/Users/dell/.serverless/releases/4.12.0/package/dist/sf-core.js:1024:6835)\n    at Serverless.init (file:///C:/Users/dell/.serverless/releases/4.12.0/package/dist/sf-core.js:1030:9809)\n    at runFramework (file:///C:/Users/dell/.serverless/releases/4.12.0/package/dist/sf-core.js:1057:856)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async TraditionalRunner.run (file:///C:/Users/dell/.serverless/releases/4.12.0/package/dist/sf-core.js:1053:28313)\n    at async route (file:///C:/Users/dell/.serverless/releases/4.12.0/package/dist/sf-core.js:1084:2779)\n    at async Object.run (file:///C:/Users/dell/.serverless/releases/4.12.0/package/dist/sf-core.js:1085:3661)\n    at async run2 (file:///C:/Users/dell/.serverless/releases/4.12.0/package/dist/sf-core.js:1085:4814)",
+      "code": "FRAMEWORK_VERSION_MISMATCH"
+    },
+    "serviceRawFile": "service: bull-street-rental\r\nframeworkVersion: '3'\r\nplugins:\r\n  - serverless-offline\r\n  - serverless-dotenv-plugin\r\ncustom:\r\n  serverless-offline:\r\n    httpPort: 3001\r\n  dotenv:\r\n    path: ./.env\r\nprovider:\r\n  name: aws\r\n  runtime: nodejs16.x\r\n  stage: ${opt:stage, 'prod'}\r\n  region: ${opt:region, 'us-east-1'}\r\n  environment:\r\n    STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}\r\n    STRIPE_WEBHOOK_SECRET: ${env:STRIPE_WEBHOOK_SECRET}\r\n    FRONTEND_URL: ${env:FRONTEND_URL, 'https://watchbullstreet.com'}\r\n    VIDEO_URL: ${env:VIDEO_URL, 'https://your-cloudfront-url.com/BullStreet.mp4'}\r\n    RENTAL_PERIOD_HOURS: 48\r\n  iamRoleStatements:\r\n    - Effect: Allow\r\n      Action:\r\n        - dynamodb:Query\r\n        - dynamodb:Scan\r\n        - dynamodb:GetItem\r\n        - dynamodb:PutItem\r\n        - dynamodb:UpdateItem\r\n        - dynamodb:DeleteItem\r\n      Resource: !GetAtt MovieRentalsTable.Arn\r\nfunctions:\r\n  createCheckoutSession:\r\n    handler: functions/createCheckoutSession.handler\r\n    events:\r\n      - http:\r\n          path: /checkout\r\n          method: post\r\n          cors: true\r\n  stripeWebhookHandler:\r\n    handler: functions/stripeWebhookHandler.handler\r\n    events:\r\n      - http:\r\n          path: /webhook\r\n          method: post\r\n          cors: true\r\n  verifyEmail:\r\n    handler: functions/verifyEmail.handler\r\n    events:\r\n      - http:\r\n          path: /verify-email\r\n          method: post\r\n          cors: true\r\n  checkRentalStatus:\r\n    handler: functions/checkRentalStatus.handler\r\n    events:\r\n      - http:\r\n          path: /check-rental\r\n          method: get\r\n          cors: true\r\nresources:\r\n  Resources:\r\n    MovieRentalsTable:\r\n      Type: AWS::DynamoDB::Table\r\n      Properties:\r\n        TableName: movie-rentals-${self:provider.stage}\r\n        BillingMode: PAY_PER_REQUEST\r\n        AttributeDefinitions:\r\n          - AttributeName: email\r\n            AttributeType: S\r\n          - AttributeName: movieId\r\n            AttributeType: S\r\n        KeySchema:\r\n          - AttributeName: email\r\n            KeyType: HASH\r\n          - AttributeName: movieId\r\n            KeyType: RANGE (edited)",
+    "command": [
+      "deploy"
+    ],
+    "options": {
+      "stage": "prod",
+      "region": "us-east-1"
+    },
+    "orgId": "5ca7894b-6432-4534-8757-ddbf9ecdb91e",
+    "orgName": "mainline123",
+    "userId": "Jr7NnFb24WtX7Jr2zt",
+    "userName": "mainline123",
+    "serviceProviderAwsAccountId": "039612853813",
+    "serviceProviderAwsCfStackId": null,
+    "serviceProviderAwsCfStackCreated": null,
+    "serviceProviderAwsCfStackUpdated": null,
+    "serviceProviderAwsCfStackStatus": null,
+    "serviceProviderAwsCfStackOutputs": null
+  }
+}
