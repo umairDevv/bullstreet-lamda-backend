@@ -1,6 +1,35 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const { success, error } = require('../utils/response');
+// const { success, error } = require('../utils/response');
 module.exports.handler = async (event) => {
+
+
+  const success = (body) => {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    };
+  };
+  // Format error response
+  const error = (statusCode, message) => {
+    return {
+      statusCode: statusCode || 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        error: message || 'Internal Server Error'
+      })
+    };
+  };
+
+
   try {
     // Parse request body
     const requestBody = JSON.parse(event.body);
@@ -12,7 +41,7 @@ module.exports.handler = async (event) => {
     let priceAmount = amount; // $4.99 for HD by default
     let priceDescription = 'Bull Street Movie Rental (HD) - 48 Hours';
     if (rentalType === 'UHD') {
-      priceAmount = amount; // $6.99 for UHD
+      priceAmount = amount; // $6.99 for UHD 
       priceDescription = 'Bull Street Movie Rental (UHD) - 48 Hours';
     }
     // Create Stripe checkout session

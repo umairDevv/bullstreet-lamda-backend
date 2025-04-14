@@ -1,6 +1,81 @@
-const { getRental, isRentalValid } = require('../utils/dynamodb');
-const { success, error } = require('../utils/response');
+// const { getRental, isRentalValid } = require('../utils/dynamodb');
+// const { success, error } = require('../utils/response');
+const dynamoDb = new AWS.DynamoDB.DocumentClient();
+
+
 module.exports.handler = async (event) => {
+
+  const TABLE_NAME = 'movie-rentals';
+
+  const getRental = async (email, movieId) => {
+    const params = {
+      TableName: TABLE_NAME,
+      Key: {
+        email,
+        movieId
+      }
+    };
+    try {
+      const result = await dynamoDb.get(params).promise();
+      return result.Item;
+    } catch (error) {
+      console.error('Error getting rental record:', error);
+      throw error;
+    }
+  };
+const isRentalValid = async (email, movieId) => {
+  try {
+    const rental = await getRental(email, movieId);
+    if (!rental) {
+      return false;
+    }
+    const now = Date.now();
+    return rental.rentalEndTime > now;
+  } catch (error) {
+    console.error('Error checking rental validity:', error);
+    throw error;
+  }
+};
+
+
+
+
+
+
+
+
+const success = (body) => {
+  return {
+    statusCode: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  };
+};
+// Format error response
+const error = (statusCode, message) => {
+  return {
+    statusCode: statusCode || 500,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      error: message || 'Internal Server Error'
+    })
+  };
+};
+
+
+
+
+
+
+
   try {
     // Get query string parameters
     const queryParams = event.queryStringParameters || {};

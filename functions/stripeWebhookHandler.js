@@ -1,7 +1,71 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const { createRental } = require('../utils/dynamodb');
-const { success, error } = require('../utils/response');
+const dynamoDb = new AWS.DynamoDB.DocumentClient();
+
+// const { createRental } = require('../utils/dynamodb');
+// const { success, error } = require('../utils/response');
 module.exports.handler = async (event) => {
+  const TABLE_NAME = 'movie-rentals';
+
+  const generateAccessToken = () => {
+    return require('crypto').randomBytes(32).toString('hex');
+  };
+  const success = (body) => {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    };
+  };
+
+  const error = (statusCode, message) => {
+    return {
+      statusCode: statusCode || 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        error: message || 'Internal Server Error'
+      })
+    };
+  };
+
+const createRental = async (email, movieId, paymentId) => {
+  const now = Date.now();
+  const rentalPeriodHours = parseInt(process.env.RENTAL_PERIOD_HOURS || '48');
+  const rentalEndTime = now + (rentalPeriodHours * 60 * 60 * 1000);
+  const params = {
+    TableName: TABLE_NAME,
+    Item: {
+      email,
+      movieId,
+      rentalStartTime: now,
+      rentalEndTime,
+      paymentId,
+      paymentStatus: 'paid',
+      accessToken: generateAccessToken()
+    }
+  };
+  try {
+    await dynamoDb.put(params).promise();
+    return params.Item;
+  } catch (error) {
+    console.error('Error creating rental record:', error);
+    throw error;
+  }
+};
+
+
+
+
+
+  // Format error response
+
   try {
     // Get the Stripe signature from the headers
     const signature = event.headers['stripe-signature'];
